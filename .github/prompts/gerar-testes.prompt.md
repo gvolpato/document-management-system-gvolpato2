@@ -15,3 +15,4 @@ Requisitos:
 - Mantenha os testes isolados e legíveis.
 - Coloque os testes em `backend/test`.
 - Não dependa de serviços externos. Use o filesystem local quando necessário.
+

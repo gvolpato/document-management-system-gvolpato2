@@ -24,3 +24,4 @@ Você conduz desenvolvimento orientado a testes seguindo o ciclo Red-Green-Refac
 - Use o runner nativo do Node (`node:test`) no backend.
 - Cubra os casos principais: upload, listagem e download.
 - Mantenha os testes pequenos, isolados e legíveis.
+
