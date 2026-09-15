@@ -1,26 +1,33 @@
-// Seed do servidor backend do Document Management System.
-//
-// Este arquivo é apenas um ponto de partida mínimo. Ao longo do workshop você
-// vai usar o Agent Mode do GitHub Copilot para construir as camadas:
-//   - routes/       (definição das rotas)
-//   - controllers/  (entrada HTTP e validação)
-//   - services/     (regras de negócio)
-//   - repositories/ (persistência: arquivos locais + metadados em memória)
-//
-// Restrição do projeto: uploads são gravados no filesystem local da aplicação
-// usando multer com diskStorage. Não utilize provedores externos.
-
 const express = require('express');
+const DocumentController = require('./controllers/documentController');
+const DocumentRepository = require('./repositories/documentRepository');
+const createDocumentRouter = require('./routes/documentRoutes');
+const DocumentService = require('./services/documentService');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
+const documentRepository = new DocumentRepository();
+const documentService = new DocumentService(documentRepository);
+const documentController = new DocumentController(documentService);
 
-// Endpoint de verificação de saúde. As demais rotas (/upload, /documents,
-// /documents/:id/download) serão implementadas durante o Passo 2.
+app.use(express.json());
+app.use(createDocumentRouter(documentController));
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
+});
+
+app.use((error, request, response, next) => {
+  if (response.headersSent) {
+    return next(error);
+  }
+
+  if (error instanceof require('multer').MulterError) {
+    return response.status(400).json({ message: 'Não foi possível processar o arquivo.' });
+  }
+
+  return response.status(500).json({ message: 'Erro interno do servidor.' });
 });
 
 if (require.main === module) {
